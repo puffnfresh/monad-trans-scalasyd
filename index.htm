@@ -1,0 +1,369 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Monad Transformers - ScalaSyd</title>
+    <!-- http://www.colourlovers.com/palette/292482/Terra -->
+    <meta charset="utf-8" />
+    <style>
+      html, body {
+        font-family: Puritan;
+        background: #E8DDCB;
+        background: -webkit-radial-gradient(center, ellipse cover, #FFF8ED 0%, #E8DDCB 100%);
+        background: -moz-radial-gradient(center, ellipse cover, #FFF8ED 0%, #E8DDCB 100%);
+        background: radial-gradient(center, ellipse cover, #FFF8ED 0%, #E8DDCB 100%);
+        color: #031634;
+      }
+      a {
+        color: #033649;
+      }
+      h1, h2, h3, h4, h5 {
+        line-height: 1em;
+        color: #033649;
+      }
+      .dark h1 {
+        font-family: 'Paytone One';
+        font-weight: bold;
+        color: #FFF;
+      }
+      strong {
+        background: #036564;
+        color: #E8DDCB;
+        padding: 0.05em 0.2em;
+      }
+      body.dark {
+        background: #036564;
+      }
+      h2 {
+        color: #036564;
+      }
+      .dark h2 {
+        font-family: 'Paytone One';
+        text-shadow: #CCC2B3 3px 3px 0;
+        color: #FFF;
+      }
+      .dark {
+        font-family: 'Droid Sans';
+        color: #E8DDCB;
+      }
+      div.image {
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: contain;
+      }
+      div.span90 {
+        width: 90%;
+      }
+      div.span80 {
+        width: 80%;
+      }
+      div.span50 {
+        width: 50%;
+      }
+      ul {
+        list-style: none;
+        line-height: 1em;
+        margin: 0;
+        padding: 0;
+      }
+      .title h3 {
+        line-height: 3em;
+        font-family: 'Press Start 2P';
+        color: #CCC2B3;
+      }
+      div.indra {
+        background-image: url(indra.png);
+      }
+      .thanks {
+        font-family: Pacifico, Helvetica, Arial, sans-serif;
+        color: #FFF;
+      }
+    </style>
+    <link rel="stylesheet" href="bigtext-slideshow.css" />
+    <link rel="stylesheet" href="code.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script src="http://www.zachleat.com/bigtext/bigtext.js"></script>
+    <script>
+      // Change these fonts and reference them in the CSS above.
+      var fonts = ['Press Start 2P', 'Paytone One', 'Pacifico', 'Droid Sans', 'Puritan'];
+    </script>
+    <script src="bigtext-slideshow.js"></script>
+  </head>
+  <body>
+    <div class="dark current title">
+      <div><h1>Monad</h1></div>
+      <div><h1>Transformers</h1></div>
+      <div><h3>More than meets the eye</h3></div>
+    </div>
+    <div class="dark">
+      <div><h2>Monads</h2></div>
+    </div>
+    <div class="span90">
+      <div><pre><code><span class="keyword">trait</span> <span class="variable-name">Monad</span>[<span class="type">M</span>[_]] {
+  <span class="keyword">def</span> <span class="variable-name">flatMap</span>[<span class="type">A</span>, <span class="type">B</span>](fa: M[A])(f: A => M[B]): M[B]
+  <span class="keyword">def</span> <span class="variable-name">point</span>[<span class="type">A</span>](a: => A): M[A]
+}</code></pre></div>
+    </div>
+    <div class="span50">
+      <div>
+        <ul>
+          <li>List</li>
+          <li>Option</li>
+          <li>State</li>
+          <li>IO</li>
+        </ul>
+      </div>
+    </div>
+    <div class="span90">
+      <div>
+        <pre><code><span class="keyword">def</span> <span class="variable-name">dup</span>[<span class="type">A</span>](a: A) = List(a, a)
+
+List(1, 2, 3) flatMap dup
+<span class="comment">// List(1, 1, 2, 2, 3, 3)</span></code></pre>
+      </div>
+    </div>
+    <div class="span90">
+      <div>
+        <pre><code><span class="keyword">for</span> {
+  <span class="variable-name">element</span> &lt;- List(1, 2, 3)
+  <span class="variable-name">dupped</span> &lt;- dup(element)
+} <span class="keyword">yield</span> dupped
+<span class="comment">// List(1, 1, 2, 2, 3, 3)</span></code></pre>
+      </div>
+    </div>
+    <div class="span80">
+      <div>
+        <pre><code><span class="keyword">def</span> <span class="variable-name">findAge</span>(name: String) =
+  <span class="keyword">if</span> (name == <span class="string">&quot;Brian&quot;</span>) Some(<span class="constant">22</span>)
+  <span class="keyword">else</span> None
+
+Some(<span class="string">&quot;Brian&quot;</span>) flatMap findAge
+<span class="comment">// Some(22)</span>
+Some(<span class="string">&quot;Jed&quot;</span>) flatMap findAge
+<span class="comment">// None</span>
+None flatMap findAge
+<span class="comment">// None</span></code></pre>
+      </div>
+    </div>
+    <div class="span90">
+      <div>
+        <pre><code><span class="keyword">for</span> {
+  <span class="variable-name">name</span> &lt;- Some(<span class="string">&quot;Brian&quot;</span>)
+  <span class="variable-name">age</span> &lt;- findAge(name)
+} <span class="keyword">yield</span> age</code></pre>
+      </div>
+    </div>
+    <div class="span90">
+      <div><blockquote>&ldquo;Monads give us programmable semicolons&rdquo;</blockquote></div>
+    </div>
+    <div class="dark">
+      <div><h2>Problem</h2></div>
+    </div>
+    <div class="image span90 indra">&nbsp;</div>
+    <div class="span50">
+      <div>
+        <ul>
+          <li>Login application</li>
+          <li>Play 2.0</li>
+          <li>Asynchronous</li>
+          <li>Remote services</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div><h2>Promise[Validation[A, B]]</h2></div>
+      <div>(Validation shouldn't be a monad, TODO: use \/)</div>
+    </div>
+    <div>
+      <div><h2>Short circuiting</h2></div>
+      <div>
+        <ul>
+          <li>Bad promise? Bad promise!</li>
+          <li>Failure? Failure!</li>
+        </ul>
+      </div>
+    </div>
+    <div class="span90">
+      <div><h2>Let's use Monad[Promise]</h2></div>
+      <div><h3>... And put validation logic everywhere</h3></div>
+      <div><pre><code><span class="keyword">for</span> {
+  <span class="variable-name">emailV</span> &lt;- getEmail(user)
+  <span class="variable-name">settingsV</span> &lt;- getSettings(user)
+  <span class="variable-name">checked</span> &lt;- emailV.fold(email =&gt;
+                Promise.pure _,
+                settingsV.fold(settings =&gt;
+                  Promise.pure _,
+                  checkDomains(user, email, settings)))
+  <span class="variable-name">authentication</span> &lt;- <span class="keyword">if</span> (checked.isSuccess)
+                       checkCredentials(user)
+                     <span class="keyword">else</span>
+                       Promise.pure(checked)
+} <span class="keyword">yield</span> authentication</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><h2>(for the node.js devs)</h2></div>
+      <div><pre><code>getEmail(user).flatMap(emailV =&gt;
+  getSettings(user).flatMap(settingsV =&gt;
+    emailV.fold(email =&gt;
+      Promise.pure _,
+      settingsV.fold(settings =&gt;
+        Promise.pure _,
+        checkDomains(user, email, settings).fold(
+          Promise.pure _,
+          _ => checkCredentials(user)))))</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><h2>Let's use Monad[Validation]</h2></div>
+      <div><h3>... And block our threads for promises</h3></div>
+      <div><pre><code><span class="keyword">for</span> {
+  <span class="variable-name">email</span> &lt;- getEmail(user).value.get
+  <span class="variable-name">settings</span> &lt;- getSettings(user).value.get
+  _ &lt;- checkDomains(user, email, settings).value.get
+  <span class="variable-name">authentication</span> &lt;- checkCredentials(user).value.get
+} <span class="keyword">yield</span> authentication</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><h2>Let's use Monad[Promise]</h2></div>
+      <div><h3>... And throw an exception to exit</h3></div>
+      <div><pre><code><span class="keyword">for</span> {
+  <span class="variable-name">emailV</span> &lt;- getEmail(user)
+  <span class="variable-name">settingsV</span> &lt;- getSettings(user)
+  <strong>_ &lt;- checkDomains(user, emailV, settingsV)</strong>
+  <span class="variable-name">authentication</span> &lt;- checkCredentials(user)
+} <span class="keyword">yield</span> authentication</code></pre></div>
+    </div>
+    <div class="span80">
+      <div><h2>You know what would be good?</h2></div>
+      <div>A special <strong>Promise[Validation[A, B]]</strong> monad</div>
+    </div>
+    <div>
+      <div>
+        <ul>
+          <li>Promise[Validation[A, B]]</li>
+          <li>M[N[A]]</li>
+        </ul>
+      </div>
+    </div>
+    <div class="span90">
+      <div>
+        <h1>Impossible</h1>
+        <pre><code><span class="keyword">def</span> <span class="variable-name">flatMap</span>[<span class="type">A</span>, <span class="type">B</span>](fa: M[N[A]])(f: A => M[N[B]]): M[N[B]]</code></pre>
+      </div>
+    </div>
+    <div class="span90">
+      <div><blockquote>&ldquo;Monads don't compose&rdquo;</blockquote></div>
+    </div>
+    <div class="dark">
+      <div>Huh? What about Kleislis?</div>
+    </div>
+    <div>
+      <div><h2>Kleisli >=></h2></div>
+      <div>(aka &ldquo;compose, fishy, compose&rdquo;)</div>
+    </div>
+    <div class="span90">
+      <div>
+        <pre><code>(findAge >=> estimateExperience)(<span class="string">&quot;Brian&quot;</span>)</code></pre>
+      </div>
+    </div>
+    <div>
+      <div>Ah, monadic functions compose</div>
+      <div><h2>... But not monads!</h2></div>
+    </div>
+    <div class="span90">
+      <div>
+        <h1>Impossible</h1>
+        <pre><code><span class="keyword">def</span> <span class="variable-name">flatMap</span>[<span class="type">A</span>, <span class="type">B</span>](fa: M[N[A]])(f: A => M[N[B]]): M[N[B]]</code></pre>
+      </div>
+    </div>
+    <div class="span90">
+      <div><blockquote>&ldquo;Monads don't compose&rdquo;</blockquote></div>
+    </div>
+    <div class="dark">
+      <div><h2>Solution</h2></div>
+    </div>
+    <div class="span90">
+      <div><pre><code><span class="keyword">case class</span> <span class="variable-name">AsyncValidation</span>[<span class="type">A</span>](run: Promise[Validation[AuthFail, A]])</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><pre><code><span class="keyword">def</span> <span class="variable-name">point</span>[<span class="type">A</span>](a: => A): AsyncValidation[A]</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><pre><code>AsyncValidation(a.point[Validation].point[Promise])</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><pre><code><span class="keyword">def</span> <span class="variable-name">flatMap</span>[<span class="type">A</span>, <span class="type">B</span>]
+           (fa: AsyncValidation[A])
+           (f: A => AsyncValidation[B])
+           : AsyncValidation[B]</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><pre><code>AsyncValidation(fa.run.flatMap(v => v <span class="keyword">match</span> {
+  <span class="keyword">case</span> Success(<span class="variable-name">s</span>) => f(s).run
+  <span class="keyword">case</span> Failure(_) => v.point[Promise]
+}))</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><pre><code>AsyncValidation(fa.run.<strong>flatMap</strong>(v => v <span class="keyword">match</span> {
+  <span class="keyword">case</span> Success(<span class="variable-name">s</span>) => f(s).run
+  <span class="keyword">case</span> Failure(_) => v.<strong>point[Promise]</strong>
+}))</code></pre></div>
+    </div>
+    <div class="dark">
+      <div><h2>Transformers</h2></div>
+    </div>
+    <div class="dark">
+      <div><h2>MonadTrans</h2></div>
+    </div>
+    <div>
+      <div><h2>ValidationT</h2></div>
+      <div>(ValidationT shouldn't exist, TODO: use EitherT)</div>
+    </div>
+    <div class="span90">
+      <div><pre><code><span class="keyword">def</span> <span class="variable-name">flatMap</span>[<span class="type">M</span>[_], <span class="type">A</span>, <span class="type">B</span>]
+           (fa: ValidationT[M, A, B])
+           (f: A => ValidationT[M, A, B])
+           : ValidationT[M, A, B]</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><pre><code>ValidationT(fa.run.flatMap(v => v <span class="keyword">match</span> {
+  <span class="keyword">case</span> Success(<span class="variable-name">s</span>) => f(s).run
+  <span class="keyword">case</span> Failure(_) => v.point[M]
+}))</code></pre></div>
+    </div>
+    <div>
+      <div>
+        <ul>
+          <li>ValidationT[List, A, B]</li>
+          <li>ValidationT[Option, A, B]</li>
+          <li>ValidationT[State, A, B]</li>
+          <li>ValidationT[IO, A, B]</li>
+        </ul>
+      </div>
+    </div>
+    <div class="span90">
+      <div><pre><code><span class="keyword">for</span> {
+  <span class="variable-name">email</span> &lt;- getEmail(user)
+  <span class="variable-name">settings</span> &lt;- getSettings(user)
+  _ &lt;- checkDomains(user, email, settings)
+  <span class="variable-name">authentication</span> &lt;- checkCredentials(user)&nbsp;&nbsp;&nbsp;&nbsp;
+} <span class="keyword">yield</span> authentication</code></pre></div>
+    </div>
+    <div class="span90">
+      <div><pre><code><span class="keyword">for</span> {
+  <span class="variable-name">email</span> &lt;- getEmail(user).liftM[AValidationT]
+  <span class="variable-name">settings</span> &lt;- getSettings(user)
+  _ &lt;- checkDomains(user, email, settings)
+  <span class="variable-name">authentication</span> &lt;- checkCredentials(user)
+} <span class="keyword">yield</span> authentication</code></pre></div>
+    </div>
+    <div class="dark">
+      <div><h2>Monad Stacks</h2></div>
+    </div>
+    <div>
+      <div><span class="keyword">type</span> <span class="variable-name">X</span> = ReaderT[StateT[IO, XState], XConf]</div>
+    </div>
+    <div class="dark thanks">
+      <div>Thanks!</div>
+    </div>
+  </body>
+</html>
